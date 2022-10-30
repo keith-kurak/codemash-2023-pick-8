@@ -1,14 +1,9 @@
 pico-8 cartridge // http://www.pico-8.com
 version 38
 __lua__
--- button constants
-⬆️ = 2
-⬅️ = 0
-➡️ = 1
-⬇️ = 3
-❎ = 4
-🅾️ = 5
+
 max_speed = 1.5
+needs_missing_map = true
 
 function _init()
  player = {
@@ -20,7 +15,7 @@ function _init()
   jump = 1,
   on_ground = 0
  }
- gen_map()
+ gen_map(true)
 end
 
 function _draw()
@@ -80,7 +75,12 @@ function _update60()
  -- generate more map
  if p.x >= (127-12)*8 then
   p.x = 24
+  needs_missing_map = true
   gen_map()
+ end
+ if needs_missing_map and p.x >= (36-12)*8 then
+  gen_missing_map()
+  needs_missing_map = false
  end
 end
 -->8
@@ -97,30 +97,46 @@ function hit(x,y,w,h,flag)
  return collide
 end
 -->8
-function gen_map()
- --clear
- for i=0,127 do
-  for j=0,15 do
-  	mset(i,j,3)
-  end 
- end
+function gen_map(init)
  -- set flat space at begin/ end
-	for i=0,15 do
-		mset(i,15,1)
-	end
-	for i=112,127 do
-		mset(i,15,1)
-	end
-	-- set variable space
-	for i=16,111 do
-	 for j=0,rnd(6)-2 do
-	   -- negative nums make no floors
-				mset(i,15-j,1)
-			if rnd(100)>90 then
-				mset(i,8,2)
-			end
+ if (init) then
+ 	for i=0,15 do
+			set_map_x(1,i)
+		end
+		for i=112,127 do
+			set_map_x(1,i)
 		end
  end
+	-- set variable space
+	for i=16,111 do
+	 local flr_hgt = gen_floor_height()
+	 set_map_x(flr_hgt,i)
+ end
+end
+
+function gen_missing_map()
+ for i=0,15 do
+  local flr_hgt = gen_floor_height()
+		set_map_x(flr_hgt,i)
+		set_map_x(flr_hgt,i+112)
+	end
+end
+
+function gen_floor_height()
+ -- negative = no floor
+	return rnd(6)-2
+end
+
+-- set a single space on map
+function set_map_x(flr_hgt,x)
+	-- clear
+	for j=0,15 do
+  mset(x,j,3)
+ end
+ for j=0,flr_hgt do
+  -- negative nums make no floors
+		mset(x,15-j,1)
+	end
 end
 __gfx__
 00444400666666660000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
