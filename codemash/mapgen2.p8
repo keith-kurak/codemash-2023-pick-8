@@ -98,12 +98,9 @@ function hit(x,y,w,h,flag)
 end
 -->8
 function gen_map(init)
- -- set flat space at begin/ end
+ -- set flat space at begin
  if (init) then
  	for i=0,15 do
-			set_map_x(1,i)
-		end
-		for i=112,127 do
 			set_map_x(1,i)
 		end
  end
