@@ -35,10 +35,7 @@ function _update60()
  p.dy=p.dy+0.05
  -- up/ down
  if (btn(➡️)) then
-   p.dx=p.dx+0.05
-   if p.dx > max_speed then
-   	p.dx = max_speed
-   end
+  p.dx=p.dx+0.05
  end
  if (btn(⬅️)) then
    p.dx=p.dx-0.05
@@ -67,6 +64,11 @@ function _update60()
  -- decel if on ground
  if p.on_ground then
   p.jump=0
+ end
+ 
+ -- max acceleration
+ if p.dx > max_speed then
+  p.dx = max_speed
  end
  
  -- update forward/ upward motion 
