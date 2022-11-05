@@ -45,7 +45,7 @@ function _draw()
  end
  -- hud
  camera()
- local score = flr(player.dist/8)
+ local score = max(flr(player.dist/8),0)
  if (score > hi_score) then
   hi_score = score
  end 
@@ -104,6 +104,7 @@ function _update60()
  
  -- decel if on ground
  if p.on_ground then
+  p.dx=p.dx*0.95
   p.jump=0
  end
  
