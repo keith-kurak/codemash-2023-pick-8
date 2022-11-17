@@ -6,39 +6,6 @@ backdrops = {
  12,13,0
 }
 
-chars = {
- {
-  spr = 1,
-  music = 0,
-  max_speed = 1.5,
-  jump = 2,
-  v_grav = 0.05,
-  h_grav = 0.05,
-  slip =  0.97,
-  wall_mod = 1
- },
- {
-  spr = 7,
-  music = 10,
-  max_speed = 1,
-  jump = 2.5,
-  v_grav = 0.05,
-  h_grav = 0.05,
-  slip = 0.97,
-  wall_mod = 1
- },
- {
-  spr = 4,
-  music = 4,
-  max_speed = 1.8,
-  jump = 2,
-  v_grav = 0.05,
-  h_grav = 0.025,
-  slip = 0.99,
-  wall_mod = 2
- }
-}
-
 -- prevent btnp repeat
 --poke(0x5f5c, 255)
 
@@ -47,6 +14,38 @@ not_started = true
 cartdata("keith_jumper")
 
 function _init()
+	chars = {
+	 {
+	  spr = 1,
+	  music = 0,
+	  max_speed = 1.5,
+	  jump = 2,
+	  v_grav = 0.05,
+	  h_grav = 0.05,
+	  slip =  0.97,
+	  wall_mod = 1
+	 },
+	 {
+	  spr = 7,
+	  music = 10,
+	  max_speed = 1,
+	  jump = 2.5,
+	  v_grav = 0.05,
+	  h_grav = 0.05,
+	  slip = 0.97,
+	  wall_mod = 1
+	 },
+	 {
+	  spr = 4,
+	  music = 4,
+	  max_speed = 1.8,
+	  jump = 2,
+	  v_grav = 0.05,
+	  h_grav = 0.025,
+	  slip = 0.99,
+	  wall_mod = 2
+	 }
+	}
  if (not not_started) then
   music(0)
  end
@@ -92,7 +91,7 @@ function _draw()
  end
  if (p.dead) then
   camera()
-  print("dead!",50,60,10)
+  print("no more divas :(",30,60,10)
   print("press 🅾️ to try again",20,68, 10)
  elseif (not_started) then
   camera()
@@ -108,16 +107,7 @@ function _draw()
  end
  -- hud
  camera()
- local score = max(flr(p.dist/8),0)
- if (score > hi_score) then
-  hi_score = score
- end
- print("score",1,1,10)
- print(score,26,1,7)
- print("hi",50,1,10)
- print(hi_score,66,1,7)
- print("lvl",92,1,10)
- print(level,112,1,7)
+ draw_hud()
 end
 
 function _update60()
@@ -134,6 +124,11 @@ function _update60()
  -- apply death
  if hit(p.x,p.y,7,7,2) or
   hit_spr(p.x,p.y,wall.x,p.y) then
+  if #chars > 1 then
+  	next_char()
+  	return
+  end
+  deli(chars,1)
   p.dead=true
   dset(0,hi_score)
   music(-1)
@@ -165,7 +160,6 @@ function _update60()
   if (p.char > #chars) then
    p.char = 1
   end
-  music(-1)
   music(chars[p.char].music)
  end
 
@@ -336,6 +330,47 @@ function set_map_x(flr_hgt,x)
 	 -- animation map swap
 	 mset(x,16,19)
 	end
+end
+-->8
+function draw_hud()
+ local p = player
+	local score = max(flr(p.dist/8),0)
+ if (score > hi_score) then
+  hi_score = score
+ end
+ print("score",1,1,10)
+ print(score,24,1,7)
+ print("hi",42,1,10)
+ print(hi_score,54,1,7)
+ print("lvl",74,1,10)
+ print(level,90,1,7)
+ 
+ --remaining players
+ for i=1,#chars do
+  local char = chars[i]
+  spr(char.spr,91+i*9,1)
+ end
+end
+
+function next_char()
+ local p = player
+ deli(chars,p.char)
+ p.char = 1
+ p.y = 20
+ p.jump = 1
+ p.dx = 0
+ p.dy = 0
+ p.on_ground = false
+ music(chars[p.char].music)
+ 
+ -- false floor
+ set_map_x(6,p.x/8-1)
+ set_map_x(6,p.x/8)
+ set_map_x(6,p.x/8+1)
+ set_map_x(6,p.x/8+2)
+ 
+ -- reset wall
+ wall.x = p.x - 64
 end
 __gfx__
 00aaaa0000aaaa0000aaaa00a0aaaa0a00aaaa0000aaaa00a0aaaa0a004444000044440040444404000000000000000000000000000000000000000000000000
